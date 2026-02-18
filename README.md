@@ -45,7 +45,7 @@ A full-stack browser-based time tracking application that allows users to assign
 | **Project**   | id (PK), name, budgetHours, budgetCost, hourlyRate (optional) | OneToMany TimeEntry. Rate fallback to user default. |
 | **TimeEntry** | id (PK), date (LocalDate), hours (double), user (FK), project (FK) | ManyToOne User & Project. Budget checks on save. |
 
-- **Cost calculation**: `hours × (project.hourlyRate ?? user.defaultHourlyRate)`
+- **Cost calculation**: `hours × (project's hourly rate if defined, otherwise the user's default hourly rate)`
 - **Budget enforcement**: On TimeEntry save, sum all entries for the project → if sum(hours) > budgetHours **or** sum(costs) > budgetCost → 400 Bad Request
 
 ## 1. How to Start from Scratch
