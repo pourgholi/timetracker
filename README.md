@@ -7,7 +7,7 @@ A full-stack browser-based time tracking application that allows users to assign
 - User registration and JWT-based authentication
 - Project management with configurable budgets (hours and cost) and hourly rates
 - Daily time entry logging with required fields (date, project, hours)
-- Automatic cost calculation: `hours × (project.hourlyRate ?? user.defaultHourlyRate)`
+- Automatic cost calculation: `hours × (project's hourly rate if defined, otherwise the user's default hourly rate)`
 - Budget validation on time entry creation/update (returns 400 if exceeded)
 - Weekly overview: total hours per day
 - Monthly overview: total hours per month
