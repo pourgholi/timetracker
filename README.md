@@ -61,8 +61,8 @@ A full-stack browser-based time tracking application that allows users to assign
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/yourusername/time-tracker.git
-cd time-tracker
+cloen this repository and cd into it
+cd timetracker
 
 # 2. Build backend JAR
 cd backend
