@@ -79,8 +79,7 @@ http://localhost:8080/swagger-ui/index.html
 
 # 5. (Optional) Start frontend in development mode (separate terminal)
 cd frontend
-npm install
-ng serve
+ng build --configuration production
 # → open http://localhost:4200
 ```
 
