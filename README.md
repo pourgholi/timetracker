@@ -82,3 +82,282 @@ cd frontend
 npm install
 ng serve
 # → open http://localhost:4200
+```
+
+### Stop and reset
+```bash
+# Stop containers
+docker compose down
+
+# Wipe database (delete all data – optional)
+docker compose down -v
+docker compose up --build
+```
+
+# Test Scenarios & API Documentation
+
+## 2. Test Scenarios with Swagger UI
+
+All examples use Swagger UI:\
+http://localhost:8080/swagger-ui/index.html
+
+### Swagger Groups
+
+-   Use the **"public"** group for authentication endpoints
+-   Use the **"protected"** group for all other endpoints
+
+### Authentication for Protected Requests
+
+1.  POST /auth/login → copy token\
+2.  Click green **Authorize** button (top right)\
+3.  Paste: `Bearer <token>` (with space after Bearer)\
+4.  Click **Authorize** → close popup
+
+------------------------------------------------------------------------
+
+## Use Case: User Authentication
+
+### Scenario 1: Register New User
+
+**Endpoint:** POST /auth/register (public group)
+
+**Body:**
+
+``` json
+{
+  "username": "alice",
+  "password": "alice123",
+  "defaultHourlyRate": 45
+}
+```
+
+**Expected:**\
+200 OK → user object with id (e.g. 1) and hashed password
+
+**Explanation:**\
+Creates a new user account. Password is automatically hashed.
+
+------------------------------------------------------------------------
+
+### Scenario 2: Login and Get JWT Token
+
+**Endpoint:** POST /auth/login (public group)
+
+**Body:**
+
+``` json
+{
+  "username": "alice",
+  "password": "alice123"
+}
+```
+
+**Expected:**\
+200 OK → plain JWT token string (copy it)
+
+**Explanation:**\
+Authenticates user and returns JWT for subsequent requests.
+
+------------------------------------------------------------------------
+
+### Scenario 3: Invalid Login (Wrong Password)
+
+**Endpoint:** POST /auth/login
+
+**Body:**
+
+``` json
+{
+  "username": "alice",
+  "password": "wrongpass"
+}
+```
+
+**Expected:**\
+403 Forbidden or 401 Unauthorized
+
+**Explanation:**\
+Tests authentication failure.
+
+------------------------------------------------------------------------
+
+## Use Case: Project & Cost Management
+
+### Scenario 4: Create a Project
+
+**Endpoint:** POST /api/projects (protected group)
+
+**Body:**
+
+``` json
+{
+  "name": "Website Redesign 2026",
+  "budgetHours": 80,
+  "budgetCost": 3600,
+  "hourlyRate": 45
+}
+```
+
+**Expected:**\
+201 Created or 200 OK → project object with new id (e.g. 1)
+
+**Explanation:**\
+Creates a project with time & cost budgets and optional hourly rate.
+
+------------------------------------------------------------------------
+
+## Use Case: Daily Time Tracking
+
+### Scenario 5: Log Valid Time Entry
+
+**Endpoint:** POST /api/time-entries (protected)
+
+**Body:**
+
+``` json
+{
+  "project": {
+    "id": 1
+  },
+  "date": "2026-02-18",
+  "hours": 7.5
+}
+```
+
+**Expected:**\
+201 Created or 200 OK → time entry saved
+
+**Explanation:**\
+Logs hours against a project.\
+Costs = 7.5 × 45 = 337.5\
+Total hours = 7.5 \< 80 budget → success.
+
+------------------------------------------------------------------------
+
+### Scenario 6: Log Time Entry Exceeding Budget
+
+**Endpoint:** POST /api/time-entries (protected)
+
+**Body (repeat until total hours \> 80, or costs \> 3600):**
+
+``` json
+{
+  "project": {
+    "id": 1
+  },
+  "date": "2026-02-19",
+  "hours": 90
+}
+```
+
+**Expected:**\
+400 Bad Request → error message like\
+"Project hours budget exceeded"\
+or\
+"Project cost budget exceeded"
+
+**Explanation:**\
+Tests automatic budget validation on save.
+
+------------------------------------------------------------------------
+
+## Use Case: Weekly and Monthly Overview
+
+### Scenario 7: Weekly Overview
+
+**Endpoint:** GET /api/overviews/weekly (protected)
+
+**Parameters:** - userId: 1 (or your user id from register) - start:
+2026-02-16 (week start date)
+
+**Expected:**\
+200 OK
+
+**Example Response:**
+
+``` json
+{
+  "2026-02-18": 7.5
+}
+```
+
+**Explanation:**\
+Displays total hours per day for the specified week.
+
+------------------------------------------------------------------------
+
+### Scenario 8: Monthly Overview
+
+**Endpoint:** GET /api/overviews/monthly (protected)
+
+**Parameters:** - userId: 1 - year: 2026 - month: 2
+
+**Expected:**\
+200 OK → total hours for the month (e.g. 7.5)
+
+**Explanation:**\
+Summary of recorded hours for the entire month.
+
+------------------------------------------------------------------------
+
+## Additional Test Scenarios
+
+### Scenario 9: Get All Projects
+
+**Endpoint:** GET /api/projects (protected)
+
+**Expected:**\
+200 OK → list of all projects
+
+------------------------------------------------------------------------
+
+### Scenario 10: Get Time Entries in Date Range (Search)
+
+**Endpoint:**\
+GET /api/time-entries/search/findByUserIdAndDateBetween (protected)
+
+**Parameters:** - userId: 1 - start: 2026-02-01 - end: 2026-02-28
+
+**Expected:**\
+200 OK → list of time entries in date range
+
+**Explanation:**\
+Tests custom query method exposed by Spring Data REST.
+
+------------------------------------------------------------------------
+
+## 3. Data Model Overview
+
+See the table in the Technologies section above.
+
+### Business Logic
+
+**Cost calculation:**\
+hours × (project.hourlyRate ?? user.defaultHourlyRate)
+
+**Budget enforcement:**\
+On TimeEntry save: - Sum all entries for the project\
+- If exceeded → throw exception\
+- Return 400 Bad Request
+
+**Persistence:**\
+PostgreSQL with auto-schema updates (ddl-auto: update)
+
+**Authentication:**\
+JWT Bearer tokens, stateless session management
+
+**API Style:**\
+Combination of Spring Data REST (auto-CRUD) + custom controllers for
+overviews & auth
+
+------------------------------------------------------------------------
+
+## Final Notes
+
+Enjoy tracking time!
+
+Open issues for bugs or feature requests.\
+Feel free to contribute PRs.
+
+
+
