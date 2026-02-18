@@ -69,19 +69,20 @@ cd backend
 ./gradlew clean build
 cd ..
 
-# 3. Start database + backend (recommended)
-docker compose up --build
-
-# Wait ~30–60 seconds for backend startup
-
-# 4. Open Swagger UI (API documentation & testing)
-http://localhost:8080/swagger-ui/index.html
-
-# 5. (Optional) Start frontend in development mode (separate terminal)
+# 3. Build frontend
 cd frontend
 ng build --configuration production
-# → open http://localhost:4200
+
+# 4. Start database + backend + fronfend (recommended)
+docker compose up --build
+
+# Wait for everything to startup
+
+# 5. Open Swagger UI (API documentation & testing)
+# → open http://localhost:8080/swagger-ui/index.html for bachend open-api ui
+# → open http://localhost:4200 for ui
 ```
+
 
 ### Stop and reset
 ```bash
