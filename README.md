@@ -352,6 +352,78 @@ overviews & auth
 
 ------------------------------------------------------------------------
 
+### System Architecture Overview
+
+```mermaid
+graph TD
+    A[Browser / User] -->|HTTP + JWT| B[Angular Frontend]
+    B -->|API calls| C[Spring Boot Backend]
+    C -->|JPA / Hibernate| D[PostgreSQL Database]
+    C -->|Swagger UI| E[http://localhost:8080/swagger-ui/index.html]
+    subgraph "Docker Containers"
+        D
+        C
+    end
+    B -.->|ng serve dev| F[localhost:4200]
+    C -.->|Docker| G[localhost:8080]
+```
+
+
+### Authentication Flow (JWT)
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Frontend
+    participant Backend
+    participant Database
+
+    User->>Frontend: Enter username + password
+    Frontend->>Backend: POST /auth/login
+    Backend->>Database: Verify credentials
+    Database-->>Backend: User exists + password match
+    Backend->>Backend: Generate JWT token
+    Backend-->>Frontend: 200 + JWT token
+    Frontend->>Frontend: Store token (localStorage)
+    Note over Frontend,Backend: All future requests include<br>Authorization: Bearer <token>
+    User->>Frontend: Access protected page
+    Frontend->>Backend: GET/POST protected endpoint + Bearer token
+    Backend->>Backend: Validate JWT in filter
+    Backend-->>Frontend: 200 OK (or 401/403)
+```
+
+### Entity-Relationship Diagram
+
+```mermaid
+erDiagram
+    USER ||--o{ TIME_ENTRY : logs
+    PROJECT ||--o{ TIME_ENTRY : receives
+
+    USER {
+        int id PK
+        string username UK
+        string password
+        decimal defaultHourlyRate
+    }
+
+    PROJECT {
+        int id PK
+        string name
+        double budgetHours
+        decimal budgetCost
+        decimal hourlyRate "optional"
+    }
+
+    TIME_ENTRY {
+        int id PK
+        date date
+        double hours
+        int user_id FK
+        int project_id FK
+    }
+```
+
+
 ## Final Notes
 
 Enjoy tracking time!
