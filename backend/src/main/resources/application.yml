@@ -1,0 +1,42 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://db:5432/timetracker
+    username: user
+    password: pass
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  data:
+    rest:
+      base-path: /api
+      detection-strategy: annotated
+      return-body-on-create: true
+      return-body-on-update: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: alpha
+    tags-sorter: alpha
+    paths-to-match:
+      - /api/**
+      - /auth/**
+    persist-authorization: true                # keeps token after refresh
+    display-request-duration: true             # shows timing
+    try-it-out-enabled: true                   # enables try it out by default
+    with-credentials: true                     # if you ever use cookies
+    # config-url: /v3/api-docs/swagger-config    # forces fresh config load
+
+server:
+  port: 8080
+
+jwt:
+  # Generated with: openssl rand -base64 48 | tr -d '\n'
+  secret: LI4NFfx3VZ2+63In5oNTXxChrqVYW0lb7cyWcwdmdXRcHSAN/nY0G0N79g0VBSlx
+  expiration-ms: 86400000  # 24 hours
+
+logging:
+  level:
+    org.springframework: INFO
