@@ -1,11 +1,12 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms'; // ← ADD THIS
 import { ApiService } from './api.service';
 
 @Component({
   selector: 'app-monthly-overview',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule], // ← ADD FormsModule here
   template: `
     <div class="p-4">
       <h2>Monthly Overview</h2>

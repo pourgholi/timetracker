@@ -1,35 +1,35 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from './auth.service';
+import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { AuthService } from './auth.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule, CommonModule],
   template: `
-    <div class="p-4">
-      <h2>Login</h2>
+    <div class="max-w-md mx-auto mt-10 p-6 bg-white rounded shadow">
+      <h2 class="text-2xl mb-6 text-center">Login</h2>
       <form (ngSubmit)="login()">
-        <input [(ngModel)]="credentials.username" placeholder="Username" required />
-        <input [(ngModel)]="credentials.password" type="password" placeholder="Password" required />
-        <button type="submit">Login</button>
+        <input [(ngModel)]="credentials.username" name="username" placeholder="Username" required class="w-full p-2 mb-4 border rounded" />
+        <input type="password" [(ngModel)]="credentials.password" name="password" placeholder="Password" required class="w-full p-2 mb-4 border rounded" />
+        <button type="submit" class="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700">Login</button>
       </form>
-      <button (click)="register()">Register</button>
+      <p *ngIf="error" class="mt-4 text-red-600 text-center">{{ error }}</p>
     </div>
-  `,
+  `
 })
 export class LoginComponent {
   credentials = { username: '', password: '' };
+  error: string | null = null;
 
-  constructor(private auth: AuthService, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
   login() {
-    this.auth.login(this.credentials).subscribe(() => this.router.navigate(['/daily']));
-  }
-
-  register() {
-    this.auth.register(this.credentials).subscribe(() => this.login());
+    this.authService.login(this.credentials).subscribe({
+      next: () => this.router.navigate(['/daily']),
+      error: err => this.error = err.message || 'Login failed'
+    });
   }
 }
